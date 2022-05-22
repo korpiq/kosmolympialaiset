@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>{ikaryhma}vartio {vartionumero}</title>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            h2 {
+                font-size: 1.0em;
+            }
+
+            .line {
+                border-bottom: 1px solid black;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            table {
+                border-spacing: 1em;
+            }
+
+            td {
+                min-width: 10em;
+                max-width: 10em;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <table>
+            <tr>
+                <td colspan="2">
+                    <h1>
+                        {ikaryhma}vartio
+                        {nro}
+                    </h1>
+                </td>
+                <td colspan="2">
+                    <h1>
+                        &nbsp; Avaruusolympialaiset &nbsp;
+                    </h1>
+                    <br />
+                </td>
+                <td style="text-align: right;">
+                    <h1>
+                        Kosmos&nbsp;2022
+                    </h1>
+                    <br />
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    Vartion nimi: &nbsp;
+                </td>
+                <td colspan="3" class="line">
+                    &nbsp;
+                </td>
+                <td rowspan="6" style="text-align: center; vertical-align: top;">
+                    <br />
+                    <div style="min-height: 9em; border: 0.5em solid white;">
+                        <div style="border: 1px solid black; min-width: 100%; min-height: 9em;">
+                            <p>
+                                Pisteet kaikkiaan
+                            </p>
+                        </div>
+                    </div>
+                    <p>
+                        Pisteidenlaskija:
+                    </p>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    Vartion jäsenet: &nbsp;
+                </td>
+                <td colspan="3">
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    1: &nbsp;
+                </td>
+                <td colspan="3" class="line">
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    2: &nbsp;
+                </td>
+                <td colspan="3" class="line">
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    3: &nbsp;
+                </td>
+                <td colspan="3" class="line">
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <br />
+                    4: &nbsp;
+                </td>
+                <td colspan="3" class="line">
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="5" class="line">
+                    <br />
+                    &nbsp;
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="5">
+                    <h1>
+                        Suoritusjärjestys
+                    </h1>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="right">
+                    <h2>
+                        Kello &nbsp;
+                    </h2>
+                </td>
+                <td colspan="2">
+                    <h2>
+                        Laji
+                    </h2>
+                </td>
+                <td>
+                    <h2>
+                        Pisteet
+                    </h2>
+                </td>
+                <td>
+                    <h2>
+                        Pisteyttäjä
+                    </h2>
+                </td>
+            </tr>
+            <loop lajit>
+                <tr>
+                    <td class="right">
+                        <br />
+                        {aika} &nbsp;
+                    </td>
+                    <td colspan="2">
+                        <br />
+                        {laji}
+                    </td>
+                    <td class="line">
+                        <br />
+                        &nbsp;
+                    </td>
+                    <td class="line">
+                        <br />
+                        &nbsp;
+                    </td>
+                </tr>
+            </loop lajit>
+        </table>
+    </body>
+
+</html>
