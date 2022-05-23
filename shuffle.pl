@@ -6,11 +6,14 @@ use 5.12.0;
 use utf8;
 use File::Slurp;
 
-my ($timetable_filename, $team_template_filename) = @ARGV;
-die "Usage: $0 timetable-filename team-template-filename\n" unless $team_template_filename;
+my ($timetable_filename, $spots_filename, $team_template_filename, $spot_template_filename) = @ARGV;
+die "Usage: $0 timetable-filename spots-filename team-template-filename spot-template-filename\n"
+    unless $spot_template_filename;
 
-my $team_template = read_file($team_template_filename, {binmode => ':utf8'});
 my ($head, @rows) = map { chomp; $_ } read_file($timetable_filename);
+my $team_template = read_file($team_template_filename, {binmode => ':utf8'});
+my $spot_template = read_file($spot_template_filename, {binmode => ':utf8'});
+my @spots_list = read_file($spots_filename, {binmode => ':utf8'});
 
 my ($alkaa, $loppuu, @slots) = split(/\t+/, $head);
 
@@ -20,15 +23,9 @@ print "@slot_spots\n";
 
 my %team_at_spot = ();
 my %team_at_time = ();
+my %spot_at_time = ();
 
-my %spot_titles = (
-    'A' => 'A) Asteroidien veden ryöstö',
-    'B' => 'B) Lämpökilpilentopallo',
-    'C' => 'C) UFO-potkupallo',
-    'D' => 'D) Satelliittipolttopallo',
-    'E' => 'E) Avaruuskävelyrata',
-    'F' => 'F) Laskeutumisalusta',
-);
+my %spot_titles = map { /^(\w)/ => $_ } @spots_list;
 
 sub add_time ($$) {
     my ($time, $add_minutes) = @_;
@@ -39,7 +36,6 @@ sub add_time ($$) {
 
 for my $row (@rows) {
     my ($start, $end, @teams) = split(/\t+/, $row);
-    print "@teams\n";
 
     for (my $i=0; $i < @teams; ++$i) {
         my $team = $teams[$i];
@@ -54,42 +50,91 @@ for my $row (@rows) {
             }
             $team_at_spot{$team}{$spot} = $time;
             $team_at_time{$team}{$time} = $spot;
-            $time = add_time($time, 10); # for combined spots, give 10 minutes to complete first
+            push @{$spot_at_time{$spot}{$time} ||= []}, $team;
+            $time = add_time($time, 12); # for combined spots, split time to complete both
         }
     }
 }
 
+sub fill_template ($$);
+
 sub fill_template ($$) {
     my ($template, $data) = @_;
-    while ($template =~ /(.*)\s*<loop (\w+)>(.*?)\s*<\/loop \2>(.*)/s) {
+
+    if ($template =~ /^(.*?)\s*<loop (\w+)>(.*?)\s*<\/loop \2>(.*)$/s) {
         my ($before, $loop_name, $loop_template, $after) = ($1, $2, $3, $4);
         my @looped = map { fill_template($loop_template, $_) } @{$data->{$loop_name}};
-        $template = join '', $before, @looped, $after;
+        $template = join '',
+            fill_template($before, $data),
+            @looped,
+            fill_template($after, $data);
+    } else {
+        $template =~ s/{(\w+)}/$data->{$1} || "$1?"/eg;
     }
-    $template =~ s/{(\w+)}/$data->{$1} || "$1?"/eg;
+
     return $template
+}
+
+sub write_file_from_template ($$$) {
+    my ($filename, $template, $data) = @_;
+    open my $fh, ">", "$filename";
+    binmode($fh, ':utf8');
+    print $fh fill_template($template, $data);
+    close $fh;
 }
 
 for my $team (sort keys %team_at_time) {
     my $times = $team_at_time{$team};
-    print "$team\n";
-    my @loopdata = ();
-    for my $time (sort keys %$times) {
-        print "- $time: $times->{$time}\n";
-        push @loopdata, {
-            aika => $time,
-            laji => $spot_titles{$times->{$time}},
-        };
-    }
     my $type = $team < 20 ? 'Sudenpentu' : 'Seikkailija';
-    my %data = (
-        'ikaryhma' => $type,
-        nro => $team,
-        lajit => \@loopdata,
-    );
 
-    open my $fh, ">", "$type-$team.html";
-    binmode($fh, ':utf8');
-    print $fh fill_template($team_template, \%data);
-    close $fh;
+    write_file_from_template(
+        "$type-$team.html",
+        $team_template,
+        {
+            ikaryhma => $type,
+            nro => $team,
+            lajit => [
+                map {{
+                    aika => $_,
+                    laji => $spot_titles{$times->{$_}},
+                }} sort keys %$times
+            ],
+        }
+    );
+}
+
+for my $spot (sort keys %spot_at_time) {
+    my $times = $spot_at_time{$spot};
+    my $slot_count = grep(/^$spot/, @slot_spots);
+
+    write_file_from_template(
+        "rasti-$spot.html",
+        $spot_template,
+        {
+            rasti => $spot,
+            nimi => $spot_titles{$spot},
+            joukkueet => [
+                map {{
+                    joukkue => "Joukkue $_"
+                }} ($slot_count > 2 ? (1, 2) : ())
+            ],
+            slotit => [
+                map {{
+                    slot => ($_ % 2)
+                        ? "Sudenpennut"
+                        : "Seikkailijat"
+                }} (1 .. $slot_count)
+            ],
+            ajat => [
+                map {{
+                    aika => $_,
+                    vartiot => [
+                        map {{
+                            vartio => "vartio $_"
+                        }} @{$times->{$_}}
+                    ]
+                }} sort keys %$times
+            ]
+        }
+    );
 }

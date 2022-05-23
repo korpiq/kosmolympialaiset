@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>{ikaryhma}vartio {vartionumero}</title>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            h1 {
+                font-size: 1.0em;
+            }
+
+            h2 {
+                font-size: 0.9em;
+            }
+
+            .line {
+                border-bottom: 1px solid black;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            table {
+                border-spacing: 1em;
+            }
+
+            td {
+                min-width: 9em;
+                max-width: 10em;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <table>
+            <tr>
+                <td>
+                    <b>
+                        Rasti {rasti}
+                    </b>
+                </td>
+                <loop joukkueet>
+                    <td colspan="2">
+                        <b>
+                            {joukkue}
+                        </b>
+                    </td>
+                </loop joukkueet>
+            </tr>
+            <tr>
+                <td class="right">
+                    Aika
+                </td>
+                <loop slotit>
+                    <td>
+                        {slot}
+                    </td>
+                </loop slotit>
+            </tr>
+
+            <loop ajat>
+                <tr>
+                    <td class="right">
+                        {aika} &nbsp;
+                        <br />
+                        <br />
+                    </td>
+                    <loop vartiot>
+                        <td class="line">
+                            {vartio}
+                            <br />
+                            <br />
+                        </td>
+                    </loop vartiot>
+                </tr>
+            </loop ajat>
+        </table>
+    </body>
+
+</html>
