@@ -1,4 +1,4 @@
-for f in *.html
+for f in S*-*.html
 do
     for c in A B C D E F
     do

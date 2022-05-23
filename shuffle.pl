@@ -56,6 +56,27 @@ for my $row (@rows) {
     }
 }
 
+my %teams_meet = ();
+for my $spot (sort keys %spot_at_time) {
+    next if $spot ge 'E';
+    for my $time (sort keys %{$spot_at_time{$spot}}) {
+        my $teams = $spot_at_time{$spot}{$time};
+        for my $team (@$teams) {
+            for my $other (@$teams) {
+                if ($team lt $other) {
+                    my $both = "$team-$other";
+                    push @{$teams_meet{$both} ||= []}, "$spot $time";
+                }
+            }
+        }
+    }
+}
+
+for my $both (sort keys %teams_meet) {
+    my @meets = @{$teams_meet{$both}};
+    print "$both: @meets\n" if @meets > 1;
+}
+
 sub fill_template ($$);
 
 sub fill_template ($$) {
